@@ -43,7 +43,7 @@ const Questions = () => {
           (question, index) =>
             currentQuestion === question.id && (
               <>
-                {/*(appData.answers[question.id-1].value!==undefined)?answer=true:answer=false*/}
+                {(appData.answers[question.id-1].value!==undefined)?answer=true:answer=false}
 
                 <Box key={question.id}>
                   <Typography variant="h3">Question: {index + 1}</Typography>

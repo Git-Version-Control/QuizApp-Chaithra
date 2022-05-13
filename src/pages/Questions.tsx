@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import QuestionCard, { QuestionType } from "../components/QuestionCard";
 import questions from "../questions.json";
-import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import { Box, Button, Typography, CircularProgress,PaginationItem, Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import QuestionHighlighting from "../components/QuestionHighllighting";
 import { AppContext } from "../App";
+import { height, padding } from "@mui/system";
 
 const TOTAL_QUESTIONS = questions.length;
 let answer: boolean = true;
@@ -16,10 +17,12 @@ const Questions = () => {
   const navigate = useNavigate();
   //const { question } = questions;
 
+
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
+  let answered=Object.keys(appData.answers)??[]
 
   function handleNextButtonClick(index: number) {
     if (index === TOTAL_QUESTIONS - 1) {
@@ -29,6 +32,11 @@ const Questions = () => {
     }
   }
 
+  function handleChangeOfQuestion(event: React.ChangeEvent<unknown>, value: number) {
+    setCurrentQuestion(value);
+  }
+
+
   return (
     <Box
       height="100vh"
@@ -36,6 +44,61 @@ const Questions = () => {
       justifyContent="center"
       alignItems="center"
     >
+      {
+        isLoading ? "" : (
+          <Box
+            height="80px"
+            marginBottom="650px"
+            marginLeft="10px"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Pagination
+              sx={{
+                transform: "scale(1.5)",
+                bgcolor:"white",
+                margin:"5px"
+              }}
+              className="paginate"
+              count={TOTAL_QUESTIONS}
+              page={currentQuestion}
+              siblingCount={2}
+              boundaryCount={2}
+              size="large"
+              onChange={handleChangeOfQuestion}
+              renderItem={
+                (item) => {
+                  let colorTheme = "black"
+                  let currentPage = item.page?.toLocaleString() ?? "0"
+                  if (
+                    answered.indexOf(item.page?.toLocaleString() ?? "0") >= 0
+                    && item.type === "page"
+                    && appData.answers[currentPage].value
+                    && appData.answers[currentPage].value.length > 0
+                  ) {
+                    colorTheme = "green"
+                  }
+                  return (
+                    <PaginationItem
+                      sx={{
+                        color: colorTheme,
+                        "&:focus": { color: "yellow" },
+                        "&:active": { color: "white" },
+                        "&:visited": { color: "green" },
+                        "&:hover": { bgcolor: "white" }
+                      }}
+                      {...item}
+                    />
+                  )
+                }
+              }
+            />
+          </Box>
+        )
+      }
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -43,16 +106,17 @@ const Questions = () => {
           (question, index) =>
             currentQuestion === question.id && (
               <>
-                {(appData.answers[question.id-1].value!==undefined)?answer=true:answer=false}
+                {/*(appData.answers[question.id-1].value!==undefined)?answer=true:answer=false*/}
 
                 <Box key={question.id}>
                   <Typography variant="h3">Question: {index + 1}</Typography>
-                  {/*<Box
+                  <Box
                   height="500px"
                   display="flex"
                   flexDirection="column"
-                  justifyContent="space-between"</>
-                >*/}
+                  justifyContent="space-between"
+                  fontSize={24}
+                   >
                   <QuestionCard
                     id={question.id}
                     question={question.question}
@@ -78,15 +142,16 @@ const Questions = () => {
                       {index === TOTAL_QUESTIONS - 1 ? "Submit" : "Next"}
                     </Button>
 
-                    <QuestionHighlighting answered={answer} current={question.id} />
-
+                    {/*<QuestionHighlighting answered={answer} current={question.id} />*/}
+                    </Box>
                   </Box>
-                  {/*</Box>*/}
                 </Box>
               </>
             )
         )
       )}
+       
+      
     </Box>
   );
 };
